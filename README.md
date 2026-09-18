@@ -51,7 +51,7 @@ pnpm build:docs
 pnpm --filter bettermarkdownmap-vscode run package:vsix
 ```
 
-在 VS Code 中选择“扩展：从 VSIX 安装”，安装仓库根目录生成的 `BetterMarkdownMap-1.0.0.vsix`。打开 Markdown 文件后，点击编辑器标题栏中的思维导图图标，或执行“BetterMarkdownMap: 思维导图”。预览会跟随编辑内容和当前 Markdown 编辑器实时更新，所有运行资源均包含在扩展中。
+在 VS Code 中选择“扩展：从 VSIX 安装”，安装仓库根目录生成的 `BetterMarkdownMap-1.0.1.vsix`。打开 Markdown 文件后，点击编辑器标题栏中的思维导图图标，或执行“BetterMarkdownMap: 思维导图”。预览会跟随编辑内容和当前 Markdown 编辑器实时更新，所有运行资源均包含在扩展中。
 
 ## CLI
 
