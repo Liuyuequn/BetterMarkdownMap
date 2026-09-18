@@ -2,7 +2,7 @@
   "name": "bettermarkdownmap-vscode",
   "displayName": "BetterMarkdownMap",
   "description": "Preview Markdown files as interactive BetterMarkdownMap diagrams.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "publisher": "local",
   "license": "MIT",
@@ -46,7 +46,7 @@
     "build:types": "tsc",
     "build:js": "vite build && vite build --mode webview",
     "build": "pnpm clean && pnpm /^build:/",
-    "package:vsix": "pnpm build && vsce package --no-dependencies --allow-missing-repository --out ../../BetterMarkdownMap-1.0.1.vsix"
+    "package:vsix": "pnpm build && vsce package --no-dependencies --allow-missing-repository --out ../../BetterMarkdownMap-1.0.2.vsix"
   },
   "devDependencies": {
     "@types/vscode": "^1.90.0",

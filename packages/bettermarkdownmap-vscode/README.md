@@ -8,4 +8,4 @@ Command Palette. The preview follows edits and active Markdown editor changes.
 All runtime assets are bundled locally in the extension.
 
 To install the packaged extension, open the Extensions view, choose “Install
-from VSIX...”, and select BetterMarkdownMap-1.0.1.vsix.
+from VSIX...”, and select BetterMarkdownMap-1.0.2.vsix.
