@@ -1,0 +1,14 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/bettermarkdownmap-autoloader" },
+    { "path": "./packages/bettermarkdownmap-cli" },
+    { "path": "./packages/bettermarkdownmap-common" },
+    { "path": "./packages/bettermarkdownmap-html-parser" },
+    { "path": "./packages/bettermarkdownmap-lib" },
+    { "path": "./packages/bettermarkdownmap-render" },
+    { "path": "./packages/bettermarkdownmap-toolbar" },
+    { "path": "./packages/bettermarkdownmap-view" },
+    { "path": "./packages/bettermarkdownmap-vscode" }
+  ]
+}

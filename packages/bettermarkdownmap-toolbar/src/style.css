@@ -1,0 +1,27 @@
+.mm-toolbar {
+  @apply flex items-center rounded bg-white border border-solid border-zinc-300 leading-none p-1 select-none;
+  &:hover {
+    @apply border-zinc-400;
+  }
+  svg {
+    @apply block;
+  }
+  &-item {
+    &:not(:first-child) {
+      @apply ml-1;
+    }
+    > * {
+      @apply min-w-4 cursor-pointer text-zinc-400 text-center text-xs;
+    }
+    &.active,
+    &:hover {
+      @apply bg-zinc-200 rounded;
+      > * {
+        @apply text-zinc-800;
+      }
+    }
+    &.active {
+      @apply bg-zinc-300;
+    }
+  }
+}

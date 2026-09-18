@@ -1,0 +1,41 @@
+{
+  "name": "bettermarkdownmap-html-parser",
+  "version": "0.18.11",
+  "description": "Parse HTML into bettermarkdownmap data structure",
+  "author": "Gerald <gera2ld@live.com>",
+  "license": "MIT",
+  "scripts": {
+    "clean": "del-cli dist tsconfig.tsbuildinfo",
+    "build:types": "tsc",
+    "build:js": "vite build",
+    "build": "pnpm clean && pnpm /^build:/"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "markdown",
+    "bettermarkdownmap",
+    "mindmap"
+  ],
+  "devDependencies": {
+    "bettermarkdownmap-common": "workspace:*"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.22.6",
+    "cheerio": "1.0.0"
+  },
+  "peerDependencies": {
+    "bettermarkdownmap-common": "*"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "bettermarkdownmap-autoloader",
+  "version": "0.18.12",
+  "description": "Load bettermarkdownmaps automatically in HTML",
+  "author": "Gerald <gera2ld@live.com>",
+  "license": "MIT",
+  "keywords": [
+    "bettermarkdownmap",
+    "markdown",
+    "mindmap"
+  ],
+  "scripts": {
+    "clean": "del-cli dist tsconfig.tsbuildinfo",
+    "build:types": "tsc",
+    "build:js": "vite build",
+    "build": "pnpm clean && pnpm /^build:/"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "peerDependencies": {
+    "bettermarkdownmap-common": "*"
+  },
+  "devDependencies": {
+    "d3": "^7.8.5",
+    "bettermarkdownmap-common": "workspace:*",
+    "bettermarkdownmap-lib": "workspace:*",
+    "bettermarkdownmap-toolbar": "workspace:*",
+    "bettermarkdownmap-view": "workspace:*"
+  }
+}

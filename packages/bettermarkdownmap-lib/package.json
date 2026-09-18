@@ -1,0 +1,69 @@
+{
+  "name": "bettermarkdownmap-lib",
+  "version": "0.18.12",
+  "description": "Visualize your Markdown as mindmaps with BetterMarkdownMap",
+  "author": "Gerald <gera2ld@live.com>",
+  "license": "MIT",
+  "scripts": {
+    "clean": "del-cli dist tsconfig.tsbuildinfo",
+    "build:types": "tsc",
+    "build:js": "vite build && vite build --mode nodeLight && vite build --mode browserEs && vite build --mode browserJs",
+    "build": "pnpm clean && pnpm /^build:/"
+  },
+  "sideEffects": false,
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "browser": "./dist/browser/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.mjs"
+    },
+    "./plugins": {
+      "types": "./dist/plugins/index.d.ts",
+      "require": "./dist/plugins.js",
+      "default": "./dist/plugins.mjs"
+    },
+    "./no-plugins": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.no-plugins.js",
+      "default": "./dist/index.no-plugins.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "markdown",
+    "bettermarkdownmap",
+    "mindmap"
+  ],
+  "devDependencies": {
+    "@highlightjs/cdn-assets": "^11.8.0",
+    "@types/katex": "^0.16.7",
+    "@types/markdown-it": "^14.0.0",
+    "bettermarkdownmap-common": "workspace:*",
+    "webfontloader": "^1.6.28"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.22.6",
+    "@vscode/markdown-it-katex": "^1.1.0",
+    "highlight.js": "^11.8.0",
+    "katex": "^0.16.8",
+    "markdown-it": "^14.1.0",
+    "markdown-it-ins": "^4.0.0",
+    "markdown-it-mark": "^4.0.0",
+    "markdown-it-sub": "^2.0.0",
+    "markdown-it-sup": "^2.0.0",
+    "bettermarkdownmap-html-parser": "workspace:*",
+    "bettermarkdownmap-view": "workspace:*",
+    "prismjs": "^1.29.0",
+    "yaml": "^2.5.1"
+  },
+  "peerDependencies": {
+    "bettermarkdownmap-common": "*"
+  }
+}

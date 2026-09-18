@@ -1,0 +1,47 @@
+{
+  "name": "bettermarkdownmap-cli",
+  "version": "0.18.12",
+  "description": "Create bettermarkdownmaps from CLI",
+  "author": "Gerald <gera2ld@live.com>",
+  "license": "MIT",
+  "bin": {
+    "bettermarkdownmap": "bin/cli.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "bettermarkdownmap",
+    "markdown",
+    "mindmap"
+  ],
+  "scripts": {
+    "clean": "del-cli dist tsconfig.tsbuildinfo",
+    "build:types": "tsc",
+    "build:js": "vite build && pnpm fetch-assets",
+    "build": "pnpm clean && pnpm /^build:/",
+    "fetch-assets": "node ./dist/fetch-assets.js"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "files": [
+    "bin",
+    "dist"
+  ],
+  "typings": "dist/index.d.ts",
+  "dependencies": {
+    "@babel/runtime": "^7.26.0",
+    "@hono/node-server": "^1.13.7",
+    "chokidar": "^4.0.1",
+    "commander": "^12.1.0",
+    "hono": "^4.6.13",
+    "bettermarkdownmap-common": "workspace:*",
+    "bettermarkdownmap-lib": "workspace:*",
+    "bettermarkdownmap-render": "workspace:*",
+    "bettermarkdownmap-toolbar": "workspace:*",
+    "open": "^10.1.0",
+    "portfinder": "^1.0.32",
+    "read-package-up": "^11.0.0"
+  }
+}

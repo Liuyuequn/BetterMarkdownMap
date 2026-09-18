@@ -1,0 +1,24 @@
+{
+  "name": "bettermarkdownmap-common",
+  "version": "0.18.9",
+  "description": "",
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "clean": "del-cli dist tsconfig.tsbuildinfo",
+    "build:types": "tsc",
+    "build:js": "vite build",
+    "build": "pnpm clean && pnpm /^build:/"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "files": [
+    "dist"
+  ],
+  "typings": "dist/index.d.ts",
+  "dependencies": {
+    "@babel/runtime": "^7.22.6",
+    "@gera2ld/jsx-dom": "^2.2.2",
+    "npm2url": "^0.2.4"
+  }
+}

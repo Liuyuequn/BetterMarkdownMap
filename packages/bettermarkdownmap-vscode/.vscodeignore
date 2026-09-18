@@ -1,0 +1,8 @@
+src/**
+test/**
+tsconfig.json
+vite.config.mts
+*.tsbuildinfo
+*.vsix
+node_modules/**
+dist/**/*.d.ts

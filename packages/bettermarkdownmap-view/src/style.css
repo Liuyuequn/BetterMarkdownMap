@@ -1,0 +1,99 @@
+.bettermarkdownmap {
+  --bettermarkdownmap-max-width: 9999px;
+  --bettermarkdownmap-a-color: #0097e6;
+  --bettermarkdownmap-a-hover-color: #00a8ff;
+  --bettermarkdownmap-code-bg: #f0f0f0;
+  --bettermarkdownmap-code-color: #555;
+  --bettermarkdownmap-highlight-bg: #ffeaa7;
+  --bettermarkdownmap-table-border: 1px solid currentColor;
+  --bettermarkdownmap-font: 300 16px/20px sans-serif;
+  --bettermarkdownmap-circle-open-bg: #fff;
+  --bettermarkdownmap-text-color: #333;
+  --bettermarkdownmap-highlight-node-bg: #ff02;
+
+  font: var(--bettermarkdownmap-font);
+  color: var(--bettermarkdownmap-text-color);
+
+  &-link {
+    fill: none;
+  }
+
+  &-node {
+    > circle {
+      cursor: pointer;
+    }
+  }
+
+  &-foreign {
+    display: inline-block;
+
+    p {
+      margin: 0;
+    }
+
+    a {
+      color: var(--bettermarkdownmap-a-color);
+      &:hover {
+        color: var(--bettermarkdownmap-a-hover-color);
+      }
+    }
+
+    code {
+      padding: 0.25em;
+      font-size: calc(1em - 2px);
+      color: var(--bettermarkdownmap-code-color);
+      background-color: var(--bettermarkdownmap-code-bg);
+      border-radius: 2px;
+    }
+
+    pre {
+      margin: 0;
+      > code {
+        display: block;
+      }
+    }
+
+    del {
+      text-decoration: line-through;
+    }
+
+    em {
+      font-style: italic;
+    }
+
+    strong {
+      font-weight: bold;
+    }
+
+    mark {
+      background: var(--bettermarkdownmap-highlight-bg);
+    }
+
+    table,
+    th,
+    td {
+      border-collapse: collapse;
+      border: var(--bettermarkdownmap-table-border);
+    }
+
+    img {
+      display: inline-block;
+    }
+
+    svg {
+      fill: currentColor;
+    }
+
+    > div {
+      width: var(--bettermarkdownmap-max-width);
+      text-align: left;
+      > div {
+        display: inline-block;
+      }
+    }
+  }
+
+  &-highlight rect {
+    fill: var(--bettermarkdownmap-highlight-node-bg);
+  }
+}

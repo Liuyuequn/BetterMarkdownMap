@@ -1,0 +1,60 @@
+{
+  "name": "bettermarkdownmap-vscode",
+  "displayName": "BetterMarkdownMap",
+  "description": "Preview Markdown files as interactive BetterMarkdownMap diagrams.",
+  "version": "1.0.0",
+  "private": true,
+  "publisher": "local",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Visualization",
+    "Other"
+  ],
+  "icon": "resources/mindmap.png",
+  "activationEvents": [
+    "onCommand:bettermarkdownmap.openPreview",
+    "onLanguage:markdown"
+  ],
+  "main": "./dist/extension.cjs",
+  "contributes": {
+    "commands": [
+      {
+        "command": "bettermarkdownmap.openPreview",
+        "title": "思维导图",
+        "category": "BetterMarkdownMap",
+        "icon": {
+          "light": "resources/mindmap-command.png",
+          "dark": "resources/mindmap-command.png"
+        }
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "bettermarkdownmap.openPreview",
+          "when": "editorLangId == markdown",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "clean": "del-cli dist tsconfig.tsbuildinfo",
+    "build:types": "tsc",
+    "build:js": "vite build && vite build --mode webview",
+    "build": "pnpm clean && pnpm /^build:/",
+    "package:vsix": "pnpm build && vsce package --no-dependencies --allow-missing-repository --out ../../BetterMarkdownMap-1.0.0.vsix"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.90.0",
+    "@vscode/vsce": "^3.6.0",
+    "bettermarkdownmap-common": "workspace:*",
+    "bettermarkdownmap-lib": "workspace:*",
+    "bettermarkdownmap-toolbar": "workspace:*",
+    "bettermarkdownmap-view": "workspace:*",
+    "katex": "^0.16.8"
+  }
+}
