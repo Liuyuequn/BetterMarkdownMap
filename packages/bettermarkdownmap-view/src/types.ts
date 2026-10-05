@@ -44,6 +44,7 @@ export interface IBetterMarkdownMapOptions {
   initialExpandLevel: number;
   maxInitialScale: number;
   pan: boolean;
+  onNodeDblClick?: (node: INode, event: MouseEvent) => void;
   scrollForPan: boolean;
   style?: (id: string) => string;
   toggleRecursively: boolean;

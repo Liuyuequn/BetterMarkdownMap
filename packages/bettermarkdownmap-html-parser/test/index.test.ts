@@ -1,5 +1,20 @@
+import type { IPureNode } from 'bettermarkdownmap-common';
 import { expect, test } from 'vitest';
 import { convertNode, parseHtml } from '../src/index';
+
+/** Compact view of a tree: `/` for an empty root, `(list)` for empty nodes. */
+function outline(node: IPureNode, depth = 0): string[] {
+  const content = node.content
+    .replace(/<br\s*\/?>/gi, ' / ')
+    .replace(/<[^>]+>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const label = content || (depth === 0 ? '/' : '(list)');
+  return [
+    `${'  '.repeat(depth)}${label}`,
+    ...node.children.flatMap((child) => outline(child, depth + 1)),
+  ];
+}
 
 test('only headings and lists become nodes', () => {
   const root = parseHtml(`
@@ -114,4 +129,150 @@ test('ol > li', () => {
 </body>`);
   expect(root).toMatchSnapshot();
   expect(convertNode(root)).toMatchSnapshot();
+});
+
+test('merge lists that belong to the same run', () => {
+  // Paragraphs, comments and anything else between the lists are ignored, so
+  // the three lists become a single group.
+  const root = convertNode(
+    parseHtml(`<body>
+<h3>heading</h3>
+<ol start="29"><li data-index="29">a</li></ol>
+<p>ignored paragraph</p>
+<ol start="30"><li data-index="30">b</li></ol>
+<!-- ignored comment -->
+<ol start="31"><li data-index="31">c</li></ol>
+</body>`),
+  );
+  expect(outline(root)).toEqual([
+    '/',
+    '  heading',
+    '    (list)',
+    '      29. a',
+    '      30. b',
+    '      31. c',
+  ]);
+});
+
+test('merge lists without explicit numbers', () => {
+  const root = convertNode(
+    parseHtml(`<body>
+<ol start="29"><li>a</li></ol>
+<p>ignored paragraph</p>
+<ol start="30"><li>b</li></ol>
+</body>`),
+  );
+  expect(outline(root)).toEqual(['/', '  (list)', '    29. a', '    30. b']);
+});
+
+test('start a new group when the numbering goes backwards', () => {
+  const root = convertNode(
+    parseHtml(`<body>
+<ol start="31">
+<li data-index="31">a</li>
+<li data-index="1">b</li>
+<li data-index="2">c</li>
+</ol>
+</body>`),
+  );
+  expect(outline(root)).toEqual([
+    '/',
+    '  (list)',
+    '    31. a',
+    '  (list)',
+    '    1. b',
+    '    2. c',
+  ]);
+});
+
+test('start a new group when a number is repeated', () => {
+  const root = convertNode(
+    parseHtml(`<body>
+<ol>
+<li data-index="1">a</li>
+<li data-index="1">b</li>
+<li data-index="1">c</li>
+</ol>
+</body>`),
+  );
+  expect(outline(root)).toEqual([
+    '/',
+    '  (list)',
+    '    1. a',
+    '  (list)',
+    '    1. b',
+    '  (list)',
+    '    1. c',
+  ]);
+});
+
+test('start a new group when a number is skipped', () => {
+  const root = convertNode(
+    parseHtml(`<body>
+<ol start="29">
+<li data-index="29">a</li>
+<li data-index="40">b</li>
+</ol>
+</body>`),
+  );
+  expect(outline(root)).toEqual([
+    '/',
+    '  (list)',
+    '    29. a',
+    '  (list)',
+    '    40. b',
+  ]);
+});
+
+test('merge bullet lists interrupted by other blocks', () => {
+  const root = convertNode(
+    parseHtml(`<body>
+<ul><li>a</li></ul>
+<p>ignored paragraph</p>
+<ul><li>b</li></ul>
+</body>`),
+  );
+  expect(outline(root)).toEqual(['/', '  (list)', '    a', '    b']);
+});
+
+test('headings break a group', () => {
+  const root = convertNode(
+    parseHtml(`<body>
+<h2>one</h2>
+<ol start="29"><li data-index="29">a</li></ol>
+<h2>two</h2>
+<ol start="30"><li data-index="30">b</li></ol>
+</body>`),
+  );
+  expect(outline(root)).toEqual([
+    '/',
+    '  one',
+    '    (list)',
+    '      29. a',
+    '  two',
+    '    (list)',
+    '      30. b',
+  ]);
+});
+
+test('keep nested lists of merged items', () => {
+  const root = convertNode(
+    parseHtml(`<body>
+<ol start="29">
+<li data-index="29">a
+<ul><li>a.1</li></ul>
+</li>
+</ol>
+<p>ignored paragraph</p>
+<ol start="30"><li data-index="30">b</li></ol>
+</body>`),
+  );
+  expect(outline(root)).toEqual([
+    '/',
+    '  (list)',
+    '    29. a',
+    '      (list)',
+    '        a.1',
+    '    30. b',
+  ]);
 });

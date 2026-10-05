@@ -26,6 +26,14 @@ const errorContainer = document.querySelector<HTMLDivElement>('#error')!;
 const mindmap = BetterMarkdownMap.create(svg, {
   autoFit: false,
   embedGlobalCSS: true,
+  onNodeDblClick: (node) => {
+    const lines = node.payload?.lines;
+    if (typeof lines !== 'string') return;
+    const line = Number.parseInt(lines.split(',', 1)[0], 10);
+    if (Number.isInteger(line) && line >= 0) {
+      vscode.postMessage({ type: 'revealSource', line });
+    }
+  },
 });
 toolbarContainer.append(Toolbar.create(mindmap).render());
 

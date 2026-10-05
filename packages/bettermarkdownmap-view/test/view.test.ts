@@ -35,3 +35,17 @@ test('do not fit the window after folding a node', async () => {
   expect(renderData).toHaveBeenCalledOnce();
   expect(fit).not.toHaveBeenCalled();
 });
+
+test('notify consumers when a node is double-clicked', () => {
+  const onNodeDblClick = vi.fn();
+  const context = {
+    options: { onNodeDblClick },
+  } as unknown as BetterMarkdownMap;
+  const event = { stopPropagation: vi.fn() } as unknown as MouseEvent;
+  const node = createNode(0);
+
+  BetterMarkdownMap.prototype.handleDoubleClick.call(context, event, node);
+
+  expect(event.stopPropagation).toHaveBeenCalledOnce();
+  expect(onNodeDblClick).toHaveBeenCalledWith(node, event);
+});

@@ -1,6 +1,21 @@
+import type { IPureNode } from 'bettermarkdownmap-common';
 import { wrapFunction } from 'bettermarkdownmap-common';
 import { expect, test } from 'vitest';
 import { Transformer, builtInPlugins } from '../src/index';
+
+/** Compact view of a tree: `/` for an empty root, `(list)` for empty nodes. */
+function outline(node: IPureNode, depth = 0): string[] {
+  const content = node.content
+    .replace(/<br\s*\/?>/gi, ' / ')
+    .replace(/<[^>]+>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const label = content || (depth === 0 ? '/' : '(list)');
+  return [
+    `${'  '.repeat(depth)}${label}`,
+    ...node.children.flatMap((child) => outline(child, depth + 1)),
+  ];
+}
 
 test('plugins', () => {
   const transformer = new Transformer();
@@ -188,4 +203,109 @@ test('links - target=_blank', () => {
 - [Google](https://www.google.com)
 `);
   expect(result).toMatchSnapshot();
+});
+
+test('group ordered lists interrupted by other blocks', () => {
+  const transformer = new Transformer();
+  const { root } = transformer.transform(`\
+### Section
+
+29. alpha ................. 13
+
+ii
+
+<!-- page 3 of 125 -->
+
+29A. beta ................. 13
+
+30. gamma ................ 13
+
+30A. delta ............... 13
+
+31. epsilon .............. 14
+
+1. one
+2. two
+`);
+  // `ii`, the comment and the `29A.`/`30A.` paragraphs are ignored, so 29-31
+  // end up in one group; the numbering going backwards at `1.` opens another.
+  expect(outline(root)).toEqual([
+    'Section',
+    '  (list)',
+    '    29. alpha ................. 13',
+    '    30. gamma ................ 13',
+    '    31. epsilon .............. 14',
+    '  (list)',
+    '    1. one',
+    '    2. two',
+  ]);
+});
+
+test('render the same tree as an uninterrupted ordered list', () => {
+  const transformer = new Transformer();
+  const interrupted = transformer.transform(`\
+### Section
+
+29. alpha
+
+ii
+
+30. beta
+
+31. gamma
+`);
+  const continuous = transformer.transform(`\
+### Section
+
+29. alpha
+
+30. beta
+
+31. gamma
+`);
+  expect(outline(interrupted.root)).toEqual(outline(continuous.root));
+});
+
+test('start a new group when numbers are skipped or repeated', () => {
+  const transformer = new Transformer();
+  const skipped = transformer.transform(`\
+### Section
+
+29. alpha
+
+30. beta
+
+40. gamma
+
+41. delta
+`);
+  expect(outline(skipped.root)).toEqual([
+    'Section',
+    '  (list)',
+    '    29. alpha',
+    '    30. beta',
+    '  (list)',
+    '    40. gamma',
+    '    41. delta',
+  ]);
+  const repeated = transformer.transform(`\
+### Section
+
+29. alpha
+
+30. beta
+
+30. gamma
+
+31. delta
+`);
+  expect(outline(repeated.root)).toEqual([
+    'Section',
+    '  (list)',
+    '    29. alpha',
+    '    30. beta',
+    '  (list)',
+    '    30. gamma',
+    '    31. delta',
+  ]);
 });

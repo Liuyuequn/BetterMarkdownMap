@@ -4,6 +4,8 @@ Preview the active Markdown document as an interactive BetterMarkdownMap.
 
 Open a Markdown file and run “BetterMarkdownMap: 思维导图” from the
 Command Palette. The preview follows edits and active Markdown editor changes.
+Double-click a mind-map node to reveal its source line in the open Markdown
+editor.
 
 All runtime assets are bundled locally in the extension.
 

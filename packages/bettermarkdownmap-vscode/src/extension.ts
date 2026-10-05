@@ -14,6 +14,10 @@ type PreviewMessage =
     }
   | { type: 'error'; message: string };
 
+type WebviewMessage =
+  | { type: 'ready' }
+  | { type: 'revealSource'; line: number };
+
 class PreviewController implements vscode.Disposable {
   private readonly transformer = new Transformer();
 
@@ -22,6 +26,8 @@ class PreviewController implements vscode.Disposable {
   private panel: vscode.WebviewPanel | undefined;
 
   private sourceDocument: vscode.TextDocument | undefined;
+
+  private sourceViewColumn: vscode.ViewColumn | undefined;
 
   private webviewReady = false;
 
@@ -37,9 +43,16 @@ class PreviewController implements vscode.Disposable {
       }),
       vscode.window.onDidChangeActiveTextEditor((editor) => {
         if (this.panel && editor && this.isMarkdown(editor.document)) {
+          // Only rebuild the preview when the source document itself changes.
+          // Moving the focus inside the already previewed document (for example
+          // after double-clicking a node to reveal its source line) must not
+          // re-render: a fresh render resets the fold state and the zoom of the
+          // mind map.
+          const sourceChanged = !this.isSource(editor.document);
           this.sourceDocument = editor.document;
+          this.sourceViewColumn = editor.viewColumn;
           this.updateTitle();
-          this.scheduleUpdate();
+          if (sourceChanged) this.scheduleUpdate();
         }
       }),
     );
@@ -67,6 +80,7 @@ class PreviewController implements vscode.Disposable {
     }
 
     this.sourceDocument = editor.document;
+    this.sourceViewColumn = editor.viewColumn;
     if (!this.panel) this.createPanel();
     this.panel?.reveal(vscode.ViewColumn.Beside, true);
     this.updateTitle();
@@ -90,6 +104,7 @@ class PreviewController implements vscode.Disposable {
       () => {
         this.panel = undefined;
         this.sourceDocument = undefined;
+        this.sourceViewColumn = undefined;
         this.webviewReady = false;
         if (this.updateTimer) clearTimeout(this.updateTimer);
       },
@@ -97,14 +112,40 @@ class PreviewController implements vscode.Disposable {
       this.disposables,
     );
     this.panel.webview.onDidReceiveMessage(
-      (message: { type?: string }) => {
+      (message: WebviewMessage) => {
         if (message.type === 'ready') {
           this.webviewReady = true;
           void this.updatePreview();
+        } else if (message.type === 'revealSource') {
+          void this.revealSource(message.line);
         }
       },
       undefined,
       this.disposables,
+    );
+  }
+
+  private async revealSource(line: number): Promise<void> {
+    const document = this.sourceDocument;
+    if (!document || !Number.isInteger(line)) return;
+
+    const targetLine = Math.min(Math.max(line, 0), document.lineCount - 1);
+    const position = new vscode.Position(targetLine, 0);
+    const selection = new vscode.Range(position, position);
+    const visibleEditor = vscode.window.visibleTextEditors.find(
+      (editor) => editor.document.uri.toString() === document.uri.toString(),
+    );
+    const editor = await vscode.window.showTextDocument(document, {
+      viewColumn: visibleEditor?.viewColumn ?? this.sourceViewColumn,
+      preserveFocus: false,
+      preview: false,
+      selection,
+    });
+    this.sourceViewColumn = editor.viewColumn;
+    editor.selection = new vscode.Selection(position, position);
+    editor.revealRange(
+      selection,
+      vscode.TextEditorRevealType.InCenterIfOutsideViewport,
     );
   }
 

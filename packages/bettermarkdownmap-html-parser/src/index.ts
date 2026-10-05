@@ -100,6 +100,13 @@ function getLevel(tagName: string) {
   return Levels.Block;
 }
 
+function parseLineRange(value: unknown): [number, number] | undefined {
+  if (typeof value !== 'string') return undefined;
+  const [start, end] = value.split(',').map(Number);
+  if (!Number.isFinite(start) || !Number.isFinite(end)) return undefined;
+  return [start, end];
+}
+
 export function parseHtml(html: string) {
   const options = defaultOptions;
   const $ = load(html);
@@ -118,7 +125,119 @@ export function parseHtml(html: string) {
   const headingStack: IHtmlNode[] = [];
   let skippingHeading = Levels.None;
   checkNodes($root.children());
+  regroupLists(rootNode);
+  clearListNumbers(rootNode);
   return rootNode;
+
+  /**
+   * Lists that belong to the same run are merged into a single node, so that
+   * whatever sits between them (paragraphs, HTML comments, code blocks, ...)
+   * does not split the group: only headings and other nodes break a run.
+   * Ordered items continue a run only while their numbers are strictly
+   * sequential, so a repeated number (`30.` twice), a skipped number (`29.`
+   * then `40.`) or a step backwards (`31.` then `1.`) all open a new group.
+   */
+  function regroupLists(parent: IHtmlNode) {
+    parent.children?.forEach(regroupLists);
+    const children = parent.children;
+    if (!children?.length) return;
+    const output: IHtmlNode[] = [];
+    let run:
+      | { container: IHtmlNode; tag: string; lastNumber: number }
+      | undefined;
+    children.forEach((child) => {
+      if (!SELECTOR_LIST.test(child.tag) || !child.children?.length) {
+        output.push(child);
+        run = undefined;
+        return;
+      }
+      const groups: IHtmlNode[][] = [];
+      let group: IHtmlNode[] = [];
+      let previous = NaN;
+      child.children.forEach((item) => {
+        const value = getListNumber(item);
+        if (
+          group.length &&
+          Number.isFinite(value) &&
+          Number.isFinite(previous) &&
+          value !== previous + 1
+        ) {
+          groups.push(group);
+          group = [];
+        }
+        group.push(item);
+        previous = value;
+      });
+      if (group.length) groups.push(group);
+      groups.forEach((items, groupIndex) => {
+        const first = getListNumber(items[0]);
+        const continues =
+          !!run &&
+          run.tag === child.tag &&
+          (!Number.isFinite(first) ||
+            !Number.isFinite(run.lastNumber) ||
+            first === run.lastNumber + 1);
+        let container: IHtmlNode;
+        if (continues) {
+          container = run!.container;
+        } else {
+          if (groupIndex === 0) {
+            container = child;
+            container.children = [];
+          } else {
+            container = { ...child, id: ++id, children: [] };
+          }
+          output.push(container);
+          run = { container, tag: child.tag, lastNumber: NaN };
+        }
+        items.forEach((item) => {
+          // The number written in the source is always shown as is.
+          renumberItem(item, getListNumber(item));
+          container.children!.push(item);
+        });
+        const lastItem = container.children![container.children!.length - 1];
+        run!.lastNumber = getListNumber(lastItem);
+        // The container spans all the lines it now covers.
+        const ranges = container
+          .children!.map((item) => parseLineRange(item.data?.lines))
+          .filter((range): range is [number, number] => !!range);
+        if (ranges.length) {
+          container.data = {
+            ...container.data,
+            lines: `${Math.min(...ranges.map((range) => range[0]))},${Math.max(
+              ...ranges.map((range) => range[1]),
+            )}`,
+          };
+        }
+      });
+    });
+    parent.children = output;
+  }
+
+  /** The number an ordered item was written with, falling back to its index. */
+  function getListNumber(node: IHtmlNode): number {
+    const value = Number(node.data?.index ?? node.data?.listIndex);
+    return Number.isFinite(value) ? value : NaN;
+  }
+
+  function renumberItem(node: IHtmlNode, index: number) {
+    if (!Number.isFinite(index)) return;
+    const previous = Number(node.data?.listIndex);
+    if (previous === index) return;
+    const prefix = Number.isFinite(previous) ? `${previous}. ` : '';
+    const html =
+      prefix && node.html.startsWith(prefix)
+        ? node.html.slice(prefix.length)
+        : node.html;
+    node.html = `${index}. ${html}`;
+    node.data = { ...node.data, listIndex: index };
+  }
+
+  /** Source numbers are only used while grouping, not exposed to consumers. */
+  function clearListNumbers(node: IHtmlNode) {
+    if (node.data) delete node.data.index;
+    node.children?.forEach(clearListNumbers);
+  }
 
   function addChild(props: {
     parent: IHtmlNode;

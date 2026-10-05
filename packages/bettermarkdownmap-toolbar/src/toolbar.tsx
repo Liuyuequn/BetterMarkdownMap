@@ -113,6 +113,10 @@ export class Toolbar {
             ? 1
             : this.visibleLevel + 1;
         await mm.setVisibleLevel(this.visibleLevel);
+        // Keep the map nicely framed after the level change. Not awaited so
+        // that stepping through the levels in quick succession is not blocked
+        // by the serialized toolbar handlers.
+        void mm.fit();
       }),
     });
     this.register({

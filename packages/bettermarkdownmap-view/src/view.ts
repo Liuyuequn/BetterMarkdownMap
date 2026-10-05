@@ -181,6 +181,11 @@ export class BetterMarkdownMap {
     void this.toggleNode(d, recursive);
   };
 
+  handleDoubleClick(e: MouseEvent, d: INode) {
+    e.stopPropagation();
+    this.options.onNodeDblClick?.(d, e);
+  }
+
   private _initializeData(node: IPureNode | INode) {
     let nodeId = 0;
     const { color, initialExpandLevel } = this.options;
@@ -395,6 +400,7 @@ export class BetterMarkdownMap {
       .append('g')
       .attr('data-depth', (d) => d.state.depth)
       .attr('data-path', (d) => d.state.path)
+      .on('dblclick', (e, d) => this.handleDoubleClick(e, d))
       .each((d) => {
         setOriginNode(nodeMap[parentMap[d.state.id]]);
       });
@@ -466,8 +472,7 @@ export class BetterMarkdownMap {
       .attr('x', paddingX)
       .attr('y', 0)
       .style('opacity', 0)
-      .on('mousedown', stopPropagation)
-      .on('dblclick', stopPropagation);
+      .on('mousedown', stopPropagation);
     mmFoEnter
       // The outer `<div>` with a width of `maxWidth`
       .append<HTMLDivElement>('xhtml:div')
